@@ -1,0 +1,161 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) SAEngine contributors. All rights reserved.
+ *  Licensed under the AGPL-3.0-only license. See LICENSE in the repository root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+import { Codicon } from '../../../../base/common/codicons.js';
+import { localize, localize2 } from '../../../../nls.js';
+import { Action2, registerAction2 } from '../../../../platform/actions/common/actions.js';
+import { SyncDescriptor } from '../../../../platform/instantiation/common/descriptors.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { Registry } from '../../../../platform/registry/common/platform.js';
+import { EditorPaneDescriptor, IEditorPaneRegistry } from '../../../browser/editor.js';
+import { EditorExtensions, IEditorFactoryRegistry } from '../../../common/editor.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
+import { PROJECT_MENU } from '../../saengineProject/browser/projectMenu.js';
+import { CommandsRegistry, ICommandService } from '../../../../platform/commands/common/commands.js';
+import { PACKAGES_SHOW_COMMAND } from '../common/packageIndex.js';
+import { PLANNED_CODE_PACK_EUROCODES, PLANNED_CODE_PACK_INDIA, PLANNED_CODE_PACK_US } from '../common/plannedCodePacks.js';
+import { registerPlannedFeature } from '../../../services/saengineProject/common/plannedFeatures.js';
+import { CodePacksEditor, IInstallCodePackArgs, INewCodePackArgs, IShowPackagesArgs } from './codePacksEditor.js';
+import { CodePacksEditorInput, CodePacksEditorInputSerializer } from './codePacksEditorInput.js';
+import { activeCodeName } from '../../../services/saengineProject/common/activeCodePack.js';
+
+const category = localize2('saengine.category', "SAEngine");
+
+Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane(
+	EditorPaneDescriptor.create(CodePacksEditor, CodePacksEditor.ID, localize('saengineCodePacksEditor', "SAEngine Packages")),
+	[new SyncDescriptor(CodePacksEditorInput)]
+);
+Registry.as<IEditorFactoryRegistry>(EditorExtensions.EditorFactory).registerEditorSerializer(CodePacksEditorInput.ID, CodePacksEditorInputSerializer);
+
+async function openPage(accessor: ServicesAccessor): Promise<CodePacksEditor | undefined> {
+	const pane = await accessor.get(IEditorService).openEditor(CodePacksEditorInput.instance, { pinned: true });
+	return pane instanceof CodePacksEditor ? pane : undefined;
+}
+
+registerAction2(class extends Action2 {
+	constructor() {
+		super({
+			id: PACKAGES_SHOW_COMMAND,
+			title: localize2('saengine.packages.show', "Packages..."),
+			category,
+			icon: Codicon.package,
+			f1: true,
+			menu: { id: PROJECT_MENU, group: '1_project', order: 7 },
+		});
+	}
+
+	/** `args` (optional): `{ tab: 'installed' | 'browse' | 'updates', kind }`. */
+	override async run(accessor: ServicesAccessor, args?: IShowPackagesArgs): Promise<void> {
+		(await openPage(accessor))?.show(args);
+	}
+});
+
+// The page's earlier name: kept so links, keybindings and scripts that open Code Packs still work.
+CommandsRegistry.registerCommand('saengine.codePacks.show', (accessor, args?: IShowPackagesArgs) => accessor.get(ICommandService).executeCommand(PACKAGES_SHOW_COMMAND, args));
+
+registerAction2(class extends Action2 {
+	constructor() {
+		super({
+			id: 'saengine.codePacks.new',
+			title: localize2('saengine.codePacks.new', "New Code Pack..."),
+			category,
+			f1: true,
+		});
+	}
+
+	/** `args` (optional): `{ id, name, extends, scope }`, asked for when missing. */
+	override async run(accessor: ServicesAccessor, args?: INewCodePackArgs): Promise<void> {
+		await (await openPage(accessor))?.newPack(args);
+	}
+});
+
+registerAction2(class extends Action2 {
+	constructor() {
+		super({
+			id: 'saengine.codePacks.install',
+			title: localize2('saengine.codePacks.install', "Install Package from File..."),
+			category,
+			f1: true,
+		});
+	}
+
+	/** `args` (optional): `{ path, scope }`; without a path a folder or .zip is picked. */
+	override async run(accessor: ServicesAccessor, args?: IInstallCodePackArgs): Promise<void> {
+		await (await openPage(accessor))?.install(args);
+	}
+});
+
+// Design codes other than BNBC 2020 are planned, not in this MVP (T42): each gets a page with its
+// coverage, is listed on the Packages page and shows disabled in the New Building wizard. No
+// tables, values or clause text of these codes are included.
+registerPlannedFeature({
+	id: PLANNED_CODE_PACK_US,
+	part: 'settings',
+	title: localize('codePacks.planned.us', "Code Pack: ACI 318-19 + ASCE 7-22 (US)"),
+	summary: localize('codePacks.planned.usSummaryLoads', "A design-code pack for projects designed to the US codes. Covered now: the loads of ASCE 7-22 (built-in pack aci318-asce7-22: load combinations, live loads and their reduction, seismic design from the site's mapped SDS and SD1, wind, roof snow), chosen in Project Settings or the New Building wizard. Planned: concrete design to ACI 318-19 and the other materials, which fall back to {0} until then.", activeCodeName()),
+	steps: [
+		localize('codePacks.planned.us1Loads', "Choose ACI 318-19 + ASCE 7-22 as the project's design code in Project Settings or in the New Building wizard (built in: no install)."),
+		localize('codePacks.planned.us2Loads', "Enter the site's SDS, SD1, S1 and TL and the basic wind speed V from the ASCE Hazard Tool (Project Settings > Site); a snow load where the site has one."),
+		localize('codePacks.planned.us3', "Loads, combinations and design checks read their factors and limits from the pack instead of {0}.", activeCodeName()),
+		localize('codePacks.planned.us4', "Reports cite the pack's sections; checks the pack does not cover stay marked as not covered."),
+	],
+	inputs: [
+		{ label: localize('codePacks.planned.usRisk', "Risk category"), example: 'II' },
+		{ label: localize('codePacks.planned.usSdc', "Seismic design category"), example: 'D' },
+		{ label: localize('codePacks.planned.usSite', "Site class"), example: 'D' },
+	],
+	outputs: [
+		localize('codePacks.planned.usOut1Loads', "Covered: wind, seismic, snow and gravity loads, load combinations (ASCE 7-22). Planned: concrete members (beams, columns, slabs, walls, footings) and seismic detailing (ACI 318-19), steel and the other materials"),
+		localize('codePacks.planned.usOut2', "The same reports and drawings as {0}, citing ACI 318-19 and ASCE 7-22", activeCodeName()),
+	],
+	references: ['ACI 318-19 Building Code Requirements for Structural Concrete', 'ASCE/SEI 7-22 Minimum Design Loads and Associated Criteria for Buildings and Other Structures'],
+});
+
+registerPlannedFeature({
+	id: PLANNED_CODE_PACK_EUROCODES,
+	part: 'settings',
+	title: localize('codePacks.planned.eurocodes', "Code Pack: Eurocodes with National Annexes"),
+	summary: localize('codePacks.planned.eurocodesSummary', "The Eurocodes EN 1990 to EN 1998 as one base pack, and each country's National Annex as a small pack that extends it: the annex sets only the Nationally Determined Parameters and inherits everything else. Covered now, in the built-in pack Eurocodes (eurocodes) with the recommended values: the loads and seismic actions (EN 1990 combinations, EN 1991-1-1, -1-3, -1-4, -1-7 Annex D, EN 1998-1), the concrete design (EN 1992-1-1 design strengths, shear, member steel; EN 1998-1 Section 5 detailing for DCM and DCH) and the geotechnical partial factors (EN 1997-1). Steel and the other materials (EN 1993 to EN 1999) and the concrete methods not yet covered still come from {0}.", activeCodeName()),
+	steps: [
+		localize('codePacks.planned.eurocodes0', "Covered: choose Eurocodes (recommended values) in Project Settings or the New Building wizard; enter agR as Z and vb,0 as V (Location: Custom) and the terrain category."),
+		localize('codePacks.planned.eurocodes1', "Install the Eurocodes base pack (EN 1990 basis, EN 1991 actions, EN 1992 concrete, EN 1993 steel, EN 1997 geotechnics, EN 1998 seismic)."),
+		localize('codePacks.planned.eurocodes2', "Install the National Annex pack of the country; it names the base pack in `extends`, the same mechanism a {0} office pack uses today.", activeCodeName()),
+		localize('codePacks.planned.eurocodes3', "Choose the National Annex pack as the design code: its Nationally Determined Parameters override the base pack's recommended values, the rest comes from the base."),
+		localize('codePacks.planned.eurocodes4', "Without a National Annex the base pack's recommended values apply, and reports say so."),
+	],
+	inputs: [
+		{ label: localize('codePacks.planned.eurocodesAnnex', "National Annex"), example: localize('codePacks.planned.eurocodesAnnexExample', "by country") },
+		{ label: localize('codePacks.planned.eurocodesConsequence', "Consequence class"), example: 'CC2' },
+		{ label: localize('codePacks.planned.eurocodesDuctility', "Ductility class"), example: 'DCM' },
+	],
+	outputs: [
+		localize('codePacks.planned.eurocodesOut1', "Coverage: actions and combinations, concrete and steel members, foundations, seismic design"),
+		localize('codePacks.planned.eurocodesOut2', "Reports that name the National Annex used for every Nationally Determined Parameter"),
+	],
+	references: ['EN 1990 to EN 1998 (Eurocodes)', 'The National Annexes of each CEN member country'],
+});
+
+registerPlannedFeature({
+	id: PLANNED_CODE_PACK_INDIA,
+	part: 'settings',
+	title: localize('codePacks.planned.india', "Code Pack: Indian Standards (IS)"),
+	summary: localize('codePacks.planned.indiaSummary', "A design-code pack for projects designed to the Indian Standards: concrete to IS 456, seismic loads to IS 1893, steel to IS 800, other loads to IS 875 and ductile detailing to IS 13920. Covered now: the loads (IS 875 Parts 1, 2, 3:2015 and 5, IS 1893 (Part 1):2016) in the built-in pack Indian Standards (IS) (is-codes); its material and member design still come from {0} until the IS 456, IS 800 and IS 13920 tables exist.", activeCodeName()),
+	steps: [
+		localize('codePacks.planned.india0', "Covered: choose Indian Standards (IS) in Project Settings or the New Building wizard; it lists its cities (zone and basic wind speed), soil types I-III and terrain categories 1-4."),
+		localize('codePacks.planned.india1', "Install the pack from the Packages page."),
+		localize('codePacks.planned.india2', "Choose it as the project's design code in Project Settings or in the New Building wizard."),
+		localize('codePacks.planned.india3', "Loads, combinations, member design and detailing read the pack instead of {0}.", activeCodeName()),
+	],
+	inputs: [
+		{ label: localize('codePacks.planned.indiaZone', "Seismic zone"), example: 'III' },
+		{ label: localize('codePacks.planned.indiaSoil', "Soil type"), example: 'II' },
+		{ label: localize('codePacks.planned.indiaImportance', "Importance factor"), example: localize('codePacks.planned.indiaImportanceExample', "by building use") },
+	],
+	outputs: [
+		localize('codePacks.planned.indiaOut1', "Coverage: dead, live, wind and seismic loads, combinations, concrete and steel members, ductile detailing"),
+		localize('codePacks.planned.indiaOut2', "The same reports and drawings as {0}, citing the IS clauses", activeCodeName()),
+	],
+	references: ['IS 456:2000 Plain and Reinforced Concrete', 'IS 1893 (Part 1):2016 Earthquake Resistant Design', 'IS 800:2007 General Construction in Steel', 'IS 875 (Parts 1–5) Design Loads', 'IS 13920:2016 Ductile Design and Detailing'],
+});

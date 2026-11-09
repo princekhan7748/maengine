@@ -27,6 +27,14 @@ node_modules/
 out/
 *.vsix
 
+# Pre-built IDE distributions & build caches
+VSCode-win32-x64/
+workbench/out/
+workbench/.build/
+workbench/node_modules/
+workbench/build/node_modules/
+.build/
+
 # OS artifacts
 .DS_Store
 Thumbs.db
