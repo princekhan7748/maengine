@@ -24,10 +24,14 @@
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^4.1.0",
     "typescript": "^5.3.3"
   },
   "activationEvents": [
+    "onStartupFinished",
+    "onView:mechastudio.modelTree",
     "onLanguage:calculix",
+    "workspaceContains:**/simulation.yaml",
     "workspaceContains:**/mechastudio.yaml",
     "onCommand:mechastudio.runPipeline",
     "onCommand:mechastudio.openMarketplace",
@@ -85,8 +89,14 @@
     "languages": [
       {
         "id": "calculix",
-        "aliases": ["CalculiX Input Deck", "Abaqus Input", "inp"],
-        "extensions": [".inp"],
+        "aliases": [
+          "CalculiX Input Deck",
+          "Abaqus Input",
+          "inp"
+        ],
+        "extensions": [
+          ".inp"
+        ],
         "configuration": "./language-configuration.json"
       }
     ],
