@@ -111,3 +111,32 @@ class FeaResultViewer:
         plotter.screenshot(output_png_path)
         plotter.close()
         return output_png_path
+
+    def show_desktop_viewport(
+        self,
+        scalar_field: Optional[str] = "STRESS_VM",
+        warp_scale: float = 1.0,
+        colormap: str = "turbo",
+    ):
+        """
+        Launches an interactive desktop 3D OpenGL viewport window.
+        """
+        deformed_mesh = self.create_deformed_mesh(scale_factor=warp_scale)
+        plotter = pv.Plotter(title="MechaStudio - 3D FEA Simulation Viewport")
+        plotter.set_background("#1e1e1e")
+
+        if scalar_field and scalar_field in deformed_mesh.point_data:
+            plotter.add_mesh(
+                deformed_mesh,
+                scalars=scalar_field,
+                cmap=colormap,
+                show_edges=True,
+                edge_color="#333333",
+                scalar_bar_args={"title": f"{scalar_field} (MPa)", "color": "white"}
+            )
+        else:
+            plotter.add_mesh(deformed_mesh, color="#007acc", show_edges=True)
+
+        plotter.add_axes()
+        plotter.camera_position = "iso"
+        plotter.show()

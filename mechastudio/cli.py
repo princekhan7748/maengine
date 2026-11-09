@@ -80,16 +80,32 @@ def cmd_view(args):
 
     if ext == ".vtu":
         try:
-            import pyvista as pv
-            mesh = pv.read(target_file)
-            print(f"    Number of Points:   {mesh.n_points}")
-            print(f"    Number of Cells:    {mesh.n_cells}")
-            print(f"    Available Fields:   {list(mesh.point_data.keys())}")
-            print(f"    Bounds:             {mesh.bounds}")
+            from mechastudio.post.viewer import FeaResultViewer
+            viewer = FeaResultViewer(target_file)
+            print(f"    Number of Points:   {viewer.mesh.n_points}")
+            print(f"    Number of Cells:    {viewer.mesh.n_cells}")
+            print(f"    Available Fields:   {list(viewer.mesh.point_data.keys())}")
+            print(f"    Bounds:             {viewer.mesh.bounds}")
+            if getattr(args, "interactive", False):
+                print("[*] Opening interactive 3D viewport window...")
+                viewer.show_desktop_viewport(warp_scale=getattr(args, "warp", 1.0))
         except Exception as e:
             print(f"    [!] Could not parse VTU metadata: {e}")
     elif ext == ".gltf":
         print(f"    Ready for WebGL / Three.js hardware-accelerated rendering in VS Code.")
+
+
+def cmd_app(args):
+    print("[*] Launching MechaStudio Mechanical Engineering IDE (VS Code Environment)...")
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    ext_path = os.path.join(base_dir, "vscode-extension")
+    workspace_path = os.path.abspath(args.workspace or base_dir)
+
+    import subprocess
+    cmd = f'code --extensionDevelopmentPath="{ext_path}" "{workspace_path}"'
+    print(f"[*] Command: {cmd}")
+    subprocess.Popen(cmd, shell=True)
+    print("[+] MechaStudio IDE Extension Development Host dispatched!")
 
 
 def cmd_marketplace(args):
@@ -206,7 +222,14 @@ def main():
     # Command: view
     p_view = subparsers.add_parser("view", help="Inspect and display metadata of 3D simulation assets")
     p_view.add_argument("file", help="Path to .vtu, .gltf, or .inp file")
+    p_view.add_argument("--interactive", "-i", action="store_true", help="Launch interactive 3D desktop viewport window")
+    p_view.add_argument("--warp", "-w", type=float, default=1.0, help="Deformation warp scaling factor")
     p_view.set_defaults(func=cmd_view)
+
+    # Command: app
+    p_app = subparsers.add_parser("app", help="Launch MechaStudio IDE (VS Code Environment)")
+    p_app.add_argument("--workspace", "-w", default=None, help="Path to workspace folder")
+    p_app.set_defaults(func=cmd_app)
 
     # Command: marketplace
     p_mp = subparsers.add_parser("marketplace", help="Search, install, and manage simulation packages")
