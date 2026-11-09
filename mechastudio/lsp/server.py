@@ -78,3 +78,4 @@ def on_completion(ls: LanguageServer, params: CompletionParams) -> CompletionLis
 
 if __name__ == "__main__":
     server.start_io()
+

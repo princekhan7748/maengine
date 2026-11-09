@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MechaStudio 3D Viewport</title>
+    <!-- Three.js and OrbitControls and GLTFLoader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <style>
+        :root {
+            --bg-color: #181818;
+            --panel-bg: rgba(30, 30, 30, 0.85);
+            --border-color: #3e3e42;
+            --text-color: #cccccc;
+            --text-bright: #ffffff;
+            --accent-color: #007acc;
+            --accent-hover: #0098ff;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
+
+        #viewport-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        #canvas3d {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Top Overlay Toolbar */
+        .toolbar {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .toolbar label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .toolbar select, .toolbar input[type="range"] {
+            background: #252526;
+            border: 1px solid var(--border-color);
+            color: var(--text-bright);
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .toolbar select:focus {
+            border-color: var(--accent-color);
+        }
+
+        /* Colorbar Legend */
+        .legend-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .legend-title {
+            font-weight: 600;
+            color: var(--text-bright);
+            margin-bottom: 4px;
+        }
+
+        .legend-bar-container {
+            display: flex;
+            align-items: stretch;
+            gap: 8px;
+            height: 180px;
+        }
+
+        .legend-gradient {
+            width: 18px;
+            height: 100%;
+            border-radius: 3px;
+            border: 1px solid #555;
+            background: linear-gradient(to top, 
+                #0000ff 0%, 
+                #00ffff 25%, 
+                #00ff00 50%, 
+                #ffff00 75%, 
+                #ff0000 100%
+            );
+        }
+
+        .legend-ticks {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            color: #ddd;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        /* HUD / Telemetry info */
+        .hud-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #aaa;
+            z-index: 10;
+        }
+
+        .hud-info b {
+            color: var(--text-bright);
+        }
+
+        /* Empty State */
+        #empty-state {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            color: #888;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+    </style>
+</head>
+<body>
+    <div id="viewport-container">
+        <canvas id="canvas3d"></canvas>
+
+        <div class="toolbar" id="toolbar">
+            <label>
+                <span>Field:</span>
+                <select id="field-select">
+                    <option value="von_mises">Von Mises Stress (S_VM)</option>
+                    <option value="displacement">Total Displacement (U_mag)</option>
+                    <option value="ux">Displacement U_X</option>
+                    <option value="uy">Displacement U_Y</option>
+                    <option value="uz">Displacement U_Z</option>
+                </select>
+            </label>
+
+            <label>
+                <input type="checkbox" id="wireframe-toggle">
+                <span>Wireframe</span>
+            </label>
+
+            <label>
+                <span>Warp:</span>
+                <input type="range" id="warp-slider" min="0" max="50" value="5" step="1">
+                <span id="warp-val">5x</span>
+            </label>
+
+            <button class="btn" id="btn-reset-cam" style="padding: 4px 8px; font-size: 11px;">Reset View</button>
+        </div>
+
+        <div class="legend-panel" id="legend">
+            <div class="legend-title" id="legend-field-title">Von Mises (MPa)</div>
+            <div class="legend-bar-container">
+                <div class="legend-gradient" id="legend-grad"></div>
+                <div class="legend-ticks">
+                    <span id="val-max">3918.4</span>
+                    <span id="val-75">2938.8</span>
+                    <span id="val-50">1959.2</span>
+                    <span id="val-25">979.6</span>
+                    <span id="val-min">0.0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hud-info" id="hud">
+            <div><b>Model:</b> <span id="hud-model">Cantilever_Beam_Bending</span></div>
+            <div><b>Solver:</b> CalculiX CrunchiX (Multi-Threaded)</div>
+            <div><b>Peak Stress:</b> <span id="hud-stress" style="color: #ff5555; font-weight: bold;">3,918.36 MPa</span></div>
+            <div><b>Max Deflection:</b> <span id="hud-disp" style="color: #55ff55; font-weight: bold;">12.41 mm</span></div>
+        </div>
+
+        <div id="empty-state" style="display: none;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            <div>No 3D Simulation Results Loaded</div>
+            <button class="btn" id="btn-load-demo">Load Cantilever Beam Results</button>
+        </div>
+    </div>
+
+    <script>
+        const vscode = (typeof acquireVsCodeApi === 'function') ? acquireVsCodeApi() : null;
+
+        // Scene, Camera, Renderer
+        const container = document.getElementById('viewport-container');
+        const canvas = document.getElementById('canvas3d');
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1e1e1e);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 5000);
+        camera.position.set(120, 80, 150);
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+        // OrbitControls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        // Lighting
+        const ambLight = new THREE.AmbientLight(0xffffff, 0.65);
+        scene.add(ambLight);
+
+        const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight1.position.set(200, 300, 200);
+        scene.add(dirLight1);
+
+        const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+        dirLight2.position.set(-200, -100, -200);
+        scene.add(dirLight2);
+
+        // Ground Grid & Coordinate Axes
+        const grid = new THREE.GridHelper(200, 20, 0x444444, 0x2b2b2b);
+        grid.position.y = -15;
+        scene.add(grid);
+
+        const axes = new THREE.AxesHelper(30);
+        scene.add(axes);
+
+        let currentMesh = null;
+        let wireframeMesh = null;
+
+        // Function to create synthetic Cantilever Beam colored mesh with stress gradient
+        function createDemoCantileverBeam() {
+            if (currentMesh) scene.remove(currentMesh);
+            if (wireframeMesh) scene.remove(wireframeMesh);
+
+            const length = 100;
+            const width = 10;
+            const height = 10;
+            const nx = 40;
+            const ny = 6;
+            const nz = 6;
+
+            const geometry = new THREE.BoxGeometry(length, height, width, nx, ny, nz);
+            geometry.translate(length / 2, 0, 0); // fixed at x=0, tip at x=100
+
+            // Apply vertex colors based on analytical bending stress sigma_x = M*y/I
+            const pos = geometry.attributes.position;
+            const colors = [];
+            const color = new THREE.Color();
+
+            // Color gradient: Rainbow (Blue -> Cyan -> Green -> Yellow -> Red)
+            for (let i = 0; i < pos.count; i++) {
+                const x = pos.getX(i);
+                const y = pos.getY(i);
+                // normalized bending stress ~ (100 - x) * abs(y) / (100 * 5)
+                const stressRatio = Math.pow((100 - x) / 100, 1.2) * (Math.abs(y) / 5);
+                const clamped = Math.min(1.0, Math.max(0.0, stressRatio));
+
+                // Hue from 240 (blue) down to 0 (red)
+                const hue = (1.0 - clamped) * 240.0 / 360.0;
+                color.setHSL(hue, 1.0, 0.5);
+                colors.push(color.r, color.g, color.b);
+            }
+
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+            const material = new THREE.MeshStandardMaterial({
+                vertexColors: true,
+                roughness: 0.3,
+                metalness: 0.2,
+                side: THREE.DoubleSide
+            });
+
+            currentMesh = new THREE.Mesh(geometry, material);
+            scene.add(currentMesh);
+
+            // Wireframe overlay
+            const wireMaterial = new THREE.MeshBasicMaterial({
+                color: 0x111111,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.25
+            });
+            wireframeMesh = new THREE.Mesh(geometry, wireMaterial);
+            scene.add(wireframeMesh);
+
+            controls.target.set(50, 0, 0);
+            camera.position.set(130, 60, 90);
+            controls.update();
+        }
+
+        // Load glTF model
+        function loadGltf(urlOrData) {
+            const loader = new THREE.GLTFLoader();
+            loader.load(urlOrData, function (gltf) {
+                if (currentMesh) scene.remove(currentMesh);
+                currentMesh = gltf.scene;
+                scene.add(currentMesh);
+
+                // Compute bounding box and center camera
+                const box = new THREE.Box3().setFromObject(currentMesh);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                controls.target.copy(center);
+                camera.position.set(center.x + size.x * 1.5, center.y + size.y * 1.5, center.z + size.z * 1.5);
+                controls.update();
+            }, undefined, function (error) {
+                console.error('Error loading glTF:', error);
+            });
+        }
+
+        // Initialize with cantilever demo model
+        createDemoCantileverBeam();
+
+        // UI Event Listeners
+        document.getElementById('wireframe-toggle').addEventListener('change', (e) => {
+            if (wireframeMesh) {
+                wireframeMesh.visible = e.target.checked;
+            }
+        });
+
+        document.getElementById('warp-slider').addEventListener('input', (e) => {
+            const val = e.target.value;
+            document.getElementById('warp-val').innerText = val + 'x';
+        });
+
+        document.getElementById('btn-reset-cam').addEventListener('click', () => {
+            controls.target.set(50, 0, 0);
+            camera.position.set(130, 60, 90);
+            controls.update();
+        });
+
+        // Window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // VS Code message listener
+        window.addEventListener('message', event => {
+            const message = event.data;
+            if (message.command === 'loadModel') {
+                if (message.gltfUrl) {
+                    loadGltf(message.gltfUrl);
+                }
+                if (message.summary) {
+                    document.getElementById('hud-stress').innerText = message.summary.max_stress + ' MPa';
+                    document.getElementById('hud-disp').innerText = message.summary.max_disp + ' mm';
+                    document.getElementById('val-max').innerText = message.summary.max_stress;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

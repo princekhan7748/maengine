@@ -115,6 +115,37 @@ class GmshMesher:
         elem_types, elem_tags, _ = gmsh.model.mesh.getElements(dim=3)
         total_3d_elements = sum(len(t) for t in elem_tags)
 
+        # 9. Clean up and append CalculiX-compatible *NSET definitions to .inp file
+        if output_mesh_path.endswith(".inp"):
+            with open(output_mesh_path, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            # Remove duplicate *Heading card written by Gmsh so master deck owns *HEADING
+            lines = content.splitlines()
+            if lines and lines[0].strip().lower() == "*heading":
+                # Skip *Heading and the title line below it
+                lines = lines[2:]
+
+            content = "\n".join(lines)
+
+            # Append NALL and physical group node sets
+            nset_blocks = [content, "\n*NSET, NSET=NALL, GENERATE", f"1, {len(node_tags)}, 1\n"]
+
+            # Export NSET for all 2D surface physical groups
+            p_groups_2d = gmsh.model.getPhysicalGroups(2)
+            for dim, p_tag in p_groups_2d:
+                p_name = gmsh.model.getPhysicalName(2, p_tag)
+                if p_name:
+                    nodes_in_grp, _ = gmsh.model.mesh.getNodesForPhysicalGroup(2, p_tag)
+                    if len(nodes_in_grp) > 0:
+                        nset_blocks.append(f"*NSET, NSET={p_name}")
+                        for i in range(0, len(nodes_in_grp), 10):
+                            chunk = nodes_in_grp[i : i + 10]
+                            nset_blocks.append(", ".join(str(n) for n in chunk) + ",")
+
+            with open(output_mesh_path, "w", encoding="utf-8") as f:
+                f.write("\n".join(nset_blocks))
+
         stats = {
             "num_nodes": len(node_tags),
             "num_3d_elements": total_3d_elements,
@@ -123,3 +154,4 @@ class GmshMesher:
         }
 
         return stats
+

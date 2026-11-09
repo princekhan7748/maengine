@@ -73,6 +73,7 @@ class MeshConfig(BaseModel):
 class BoundaryConditionType(str, Enum):
     FIXED = "fixed"                # Encastre (U1=U2=U3=0)
     DISPLACEMENT = "displacement"  # Prescribed displacement vector
+    TEMPERATURE = "temperature"    # Prescribed temperature (DOF 11)
     SYMMETRY_X = "x_symmetry"
     SYMMETRY_Y = "y_symmetry"
     SYMMETRY_Z = "z_symmetry"
@@ -82,7 +83,7 @@ class BoundaryCondition(BaseModel):
     name: str
     type: BoundaryConditionType
     target_set: str                # Reference to EntitySet.name
-    u1: Optional[float] = None    # Prescribed X displacement
+    u1: Optional[float] = None    # Prescribed X displacement or temperature
     u2: Optional[float] = None    # Prescribed Y displacement
     u3: Optional[float] = None    # Prescribed Z displacement
 
@@ -91,6 +92,8 @@ class LoadType(str, Enum):
     PRESSURE = "pressure"          # Surface normal pressure
     CONCENTRATED_FORCE = "force"  # Concentrated point/surface force vector
     GRAVITY = "gravity"            # Body acceleration vector
+    HEAT_FLUX = "flux"             # Surface heat flux
+    TEMPERATURE = "temperature"    # Prescribed temperature body/surface
 
 
 class Load(BaseModel):
@@ -141,3 +144,4 @@ class SimulationProject(BaseModel):
     def to_yaml(self) -> str:
         import yaml
         return yaml.dump(self.model_dump(exclude_none=True), sort_keys=False, indent=2)
+

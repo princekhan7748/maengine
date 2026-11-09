@@ -13,10 +13,25 @@
     "Linters"
   ],
   "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.3"
+  },
   "activationEvents": [
     "onLanguage:calculix",
     "workspaceContains:**/mechastudio.yaml",
-    "onCommand:mechastudio.runPipeline"
+    "onCommand:mechastudio.runPipeline",
+    "onCommand:mechastudio.openMarketplace",
+    "onCommand:mechastudio.viewResults"
   ],
   "contributes": {
     "viewsContainers": {
@@ -59,6 +74,11 @@
       {
         "command": "mechastudio.viewResults",
         "title": "MechaStudio: Open 3D Results Viewport",
+        "category": "MechaStudio"
+      },
+      {
+        "command": "mechastudio.openMarketplace",
+        "title": "MechaStudio: Open Simulation Marketplace",
         "category": "MechaStudio"
       }
     ],

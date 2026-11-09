@@ -24,3 +24,4 @@ def create_cantilever_beam(length: float = 100.0, width: float = 10.0, height: f
 if __name__ == "__main__":
     out_step = os.path.join(os.path.dirname(__file__), "beam.step")
     create_cantilever_beam(length=100.0, width=10.0, height=10.0, step_output_path=out_step)
+

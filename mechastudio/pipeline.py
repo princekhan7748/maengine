@@ -1,7 +1,7 @@
 """
 MechaStudio High-Level Simulation Pipeline
 The central orchestrator connecting CAD (build123d), Meshing (Gmsh),
-Deck Compilation (Jinja2), Solver Execution (CalculiX), and Post-Processing (VTK/PyVista).
+Deck Compilation (Jinja2), Solver Execution (CalculiX), and Post-Processing (VTK/glTF).
 """
 
 import os
@@ -11,6 +11,7 @@ from mechastudio.meshing.gmsh_mesher import GmshMesher
 from mechastudio.solvers.calculix.deck_generator import CalculixDeckGenerator
 from mechastudio.solvers.calculix.runner import CalculixRunner
 from mechastudio.solvers.calculix.reader import CalculixResultReader
+from mechastudio.post.viewer import FeaResultViewer
 
 
 class SimulationPipeline:
@@ -21,14 +22,24 @@ class SimulationPipeline:
 
         self.mesh_path = os.path.join(self.work_dir, "model_mesh.inp")
         self.deck_path = os.path.join(self.work_dir, f"{project.name}.inp")
+        self.frd_path = os.path.join(self.work_dir, f"{project.name}.frd")
+        self.vtu_path = os.path.join(self.work_dir, f"{project.name}.vtu")
+        self.gltf_path = os.path.join(self.work_dir, f"{project.name}.gltf")
+        self.screenshot_path = os.path.join(self.work_dir, f"{project.name}_contour.png")
+
         self.runner = CalculixRunner()
 
     @classmethod
-    def from_yaml(cls, yaml_path: str, work_dir: Optional[str] = None) -> "SimulationPipeline":
+    def from_yaml(cls, yaml_path: str, work_dir: Optional[str] = None, output_dir: Optional[str] = None) -> "SimulationPipeline":
+        target_dir = output_dir or work_dir
         with open(yaml_path, "r", encoding="utf-8") as f:
             yaml_str = f.read()
         proj = SimulationProject.from_yaml(yaml_str)
-        return cls(proj, work_dir=work_dir)
+        # If CAD file in project is relative, resolve it relative to the YAML directory
+        if proj.cad_file and not os.path.isabs(proj.cad_file):
+            yaml_dir = os.path.dirname(os.path.abspath(yaml_path))
+            proj.cad_file = os.path.join(yaml_dir, proj.cad_file)
+        return cls(proj, work_dir=target_dir)
 
     def generate_mesh(self, cad_file_path: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -80,9 +91,52 @@ class SimulationPipeline:
             on_residual=on_residual,
         )
 
-    def get_results(self) -> CalculixResultReader:
+    def post_process(self, warp_scale: float = 1.0) -> Dict[str, Any]:
         """
-        Returns reader instance pointing to the generated .frd result.
+        Converts .frd results to .vtu, extracts max von Mises stress and deflection,
+        and generates .gltf and .png visualizations for VS Code.
         """
-        frd_file = os.path.join(self.work_dir, f"{self.project.name}.frd")
-        return CalculixResultReader(frd_file)
+        if not os.path.exists(self.frd_path):
+            raise FileNotFoundError(f"Result file .frd not found: {self.frd_path}")
+
+        reader = CalculixResultReader(self.frd_path)
+        reader.convert_to_vtu(overwrite=True)
+        summary = reader.extract_summary()
+
+        viewer = FeaResultViewer(self.vtu_path)
+        viewer.export_gltf(self.gltf_path, scalar_field="STRESS_VM", warp_scale=warp_scale)
+        viewer.export_screenshot(self.screenshot_path, scalar_field="STRESS_VM", warp_scale=warp_scale)
+
+        summary["gltf_file"] = self.gltf_path
+        summary["screenshot_file"] = self.screenshot_path
+        return summary
+
+    def run_all(self, cad_file_path: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Executes the entire end-to-end pipeline in one automated pass:
+        CAD Mesh -> Deck Gen -> Solve -> Post-Process (VTU/glTF/PNG).
+        """
+        mesh_stats = self.generate_mesh(cad_file_path=cad_file_path)
+        deck_file = self.compile_solver_deck()
+        solve_result = self.solve()
+
+        if not solve_result["success"]:
+            return {
+                "success": False,
+                "stage": "solve",
+                "error": solve_result.get("error", "Solver failed"),
+                "mesh_stats": mesh_stats,
+            }
+
+        post_summary = self.post_process()
+        return {
+            "success": True,
+            "mesh_path": self.mesh_path,
+            "mesh_stats": mesh_stats,
+            "deck_path": deck_file,
+            "inp_path": deck_file,
+            "vtu_path": self.vtu_path,
+            "gltf_path": self.gltf_path,
+            "screenshot_path": self.screenshot_path,
+            "summary": post_summary,
+        }

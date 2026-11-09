@@ -1,0 +1,7 @@
+{
+  "installed_package_ids": [
+    "dynamics.modal_frequency",
+    "structural.static_linear",
+    "thermal.steady_state"
+  ]
+}

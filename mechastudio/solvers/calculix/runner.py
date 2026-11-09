@@ -102,3 +102,4 @@ class CalculixRunner:
             "error": error_message if not (is_completed or return_code == 0) else None,
             "output_tail": output_lines[-20:] if output_lines else [],
         }
+

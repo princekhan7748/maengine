@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mechastudio"
+version = "0.1.0"
+description = "Open-Source Mechanical Engineering IDE: CAD, conformal meshing, CalculiX FEA, and 3D simulation analysis."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "MechaStudio Team" }
+]
+dependencies = [
+  "pydantic>=2.0",
+  "pyyaml>=6.0",
+  "jinja2>=3.1",
+  "gmsh>=4.11",
+  "pyvista>=0.40",
+  "vtk>=9.2",
+  "meshio>=5.3",
+  "pygls>=1.0",
+  "pylife>=2.0",
+]
+
+[project.scripts]
+mechastudio = "mechastudio.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["mechastudio*"]

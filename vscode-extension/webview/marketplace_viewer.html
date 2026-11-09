@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MechaStudio Simulation Marketplace</title>
+    <style>
+        :root {
+            --bg-color: var(--vscode-editor-background, #1e1e1e);
+            --fg-color: var(--vscode-editor-foreground, #cccccc);
+            --card-bg: var(--vscode-sideBar-background, #252526);
+            --card-border: var(--vscode-widget-border, #3e3e42);
+            --btn-bg: var(--vscode-button-background, #0e639c);
+            --btn-fg: var(--vscode-button-foreground, #ffffff);
+            --btn-hover: var(--vscode-button-hoverBackground, #1177bb);
+            --badge-bg: var(--vscode-badge-background, #4d4d4d);
+            --badge-fg: var(--vscode-badge-foreground, #ffffff);
+            --input-bg: var(--vscode-input-background, #3c3c3c);
+            --input-border: var(--vscode-input-border, #3e3e42);
+            --input-fg: var(--vscode-input-foreground, #cccccc);
+        }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            background-color: var(--bg-color);
+            color: var(--fg-color);
+            font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+            font-size: var(--vscode-font-size, 13px);
+            line-height: 1.5;
+        }
+
+        .header {
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px 0;
+            font-size: 22px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #888;
+            font-size: 13px;
+        }
+
+        /* Search and Filter Bar */
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 260px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            box-sizing: border-box;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--input-fg);
+            padding: 8px 12px;
+            border-radius: 4px;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .search-box input:focus {
+            border-color: var(--btn-bg);
+        }
+
+        .category-chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .chip {
+            background: #2d2d2d;
+            border: 1px solid var(--card-border);
+            padding: 5px 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .chip:hover {
+            background: #383838;
+        }
+
+        .chip.active {
+            background: var(--btn-bg);
+            color: var(--btn-fg);
+            border-color: var(--btn-bg);
+        }
+
+        /* Grid */
+        .marketplace-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+        }
+
+        .card:hover {
+            border-color: #555;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .card-meta {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .badge-solver {
+            background-color: #334455;
+            color: #9cdcfe;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        .badge-ver {
+            background-color: var(--badge-bg);
+            color: var(--badge-fg);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .card-desc {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 14px;
+            flex-grow: 1;
+            line-height: 1.4;
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .tag {
+            background: #222;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            color: #777;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #333;
+            padding-top: 12px;
+        }
+
+        .author {
+            font-size: 11px;
+            color: #777;
+        }
+
+        .btn {
+            background-color: var(--btn-bg);
+            color: var(--btn-fg);
+            border: none;
+            padding: 6px 14px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--btn-hover);
+        }
+
+        .btn-installed {
+            background-color: transparent;
+            color: #4ec9b0;
+            border: 1px solid #4ec9b0;
+            cursor: default;
+        }
+
+        .btn-uninstall {
+            background-color: transparent;
+            color: #f14c4c;
+            border: 1px solid #553333;
+            padding: 4px 8px;
+            font-size: 11px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        .btn-uninstall:hover {
+            background-color: rgba(241, 76, 76, 0.2);
+        }
+
+        .action-group {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            MechaStudio Marketplace
+        </h1>
+        <p>Discover, install, and customize simulation object templates, physics solvers, and engineering material catalogs.</p>
+    </div>
+
+    <div class="controls">
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Search templates, materials, solvers (e.g. contact, vibration, titanium)...">
+        </div>
+    </div>
+
+    <div class="category-chips" id="categories-container">
+        <div class="chip active" data-category="ALL">All Categories</div>
+        <div class="chip" data-category="Structural">Structural</div>
+        <div class="chip" data-category="Dynamics & Vibration">Dynamics & Vibration</div>
+        <div class="chip" data-category="Thermal & Fluids">Thermal & Fluids</div>
+        <div class="chip" data-category="Multiphysics & Coupling">Multiphysics</div>
+        <div class="chip" data-category="Fatigue & Durability">Durability</div>
+        <div class="chip" data-category="Material Libraries">Materials</div>
+    </div>
+
+    <div class="marketplace-grid" id="grid">
+        <!-- Rendered dynamically -->
+    </div>
+
+    <script>
+        const vscode = (typeof acquireVsCodeApi === 'function') ? acquireVsCodeApi() : null;
+
+        let packagesData = [
+            {
+                id: "structural.static_linear",
+                name: "Linear Elastic Static Stress Analysis",
+                version: "1.0.0",
+                category: "Structural",
+                author: "MechaStudio Core Team",
+                description: "Standard 3D continuum linear elastic stress and deflection solver deck with automatic boundary and load mapping.",
+                solver: "CalculiX",
+                tags: ["fea", "static", "linear", "stress", "von-mises"],
+                is_installed: true,
+                is_core: true
+            },
+            {
+                id: "dynamics.modal_frequency",
+                name: "Natural Frequency & Normal Modes (Eigenvalue Lanczos)",
+                version: "1.0.0",
+                category: "Dynamics & Vibration",
+                author: "MechaStudio Core Team",
+                description: "Extracts undamped natural frequencies and 3D mode shapes using CalculiX multi-threaded Lanczos solver.",
+                solver: "CalculiX",
+                tags: ["vibration", "eigenvalues", "lanczos", "modal"],
+                is_installed: true,
+                is_core: true
+            },
+            {
+                id: "thermal.steady_state",
+                name: "Steady-State Thermal Conduction & Flux",
+                version: "1.0.0",
+                category: "Thermal & Fluids",
+                author: "MechaStudio Core Team",
+                description: "Calculates 3D temperature distributions, thermal gradients, and heat flux vectors across multi-body assemblies.",
+                solver: "CalculiX",
+                tags: ["thermal", "conduction", "heat-flux", "temperature"],
+                is_installed: true,
+                is_core: true
+            },
+            {
+                id: "structural.contact_mortar",
+                name: "Nonlinear Surface-to-Surface Contact (Mortar / Penalty)",
+                version: "1.2.0",
+                category: "Structural",
+                author: "OpenCAE Community",
+                description: "Nonlinear contact formulation featuring surface-to-surface penalty interaction, friction modeling, and chattering mitigation.",
+                solver: "CalculiX",
+                tags: ["contact", "nonlinear", "penalty", "friction", "assembly"],
+                is_installed: false,
+                is_core: false
+            },
+            {
+                id: "materials.aerospace_metals",
+                name: "Aerospace Structural Alloys Catalog",
+                version: "2.1.0",
+                category: "Material Libraries",
+                author: "MMPDS Open Data",
+                description: "Temperature-dependent elastic-plastic properties, densities, and yield strengths for Ti-6Al-4V, Al-7075-T6, Inconel 718, and 17-4PH.",
+                solver: "Multi-Solver",
+                tags: ["materials", "titanium", "aluminum", "inconel", "aerospace"],
+                is_installed: false,
+                is_core: false
+            },
+            {
+                id: "dynamics.harmonic_response",
+                name: "Steady-State Linear Dynamics & Harmonic Response",
+                version: "1.1.0",
+                category: "Dynamics & Vibration",
+                author: "VibroAcoustic Lab",
+                description: "Frequency response sweep calculating peak frequency amplitudes, phase angles, and Frequency Response Functions (FRF).",
+                solver: "CalculiX",
+                tags: ["dynamics", "harmonic", "frequency-sweep", "frf", "resonance"],
+                is_installed: false,
+                is_core: false
+            },
+            {
+                id: "multiphysics.thermo_mechanical",
+                name: "Sequential Thermo-Mechanical Coupled Expansion",
+                version: "1.0.0",
+                category: "Multiphysics & Coupling",
+                author: "MechaStudio Core Team",
+                description: "Maps thermal temperature fields directly to thermal expansion strains to evaluate thermal stresses and thermal buckling.",
+                solver: "CalculiX",
+                tags: ["multiphysics", "thermal-stress", "expansion", "coupled"],
+                is_installed: false,
+                is_core: false
+            },
+            {
+                id: "durability.high_cycle_fatigue",
+                name: "High-Cycle Fatigue & Wöhler S-N Damage (pyLife)",
+                version: "1.0.0",
+                category: "Fatigue & Durability",
+                author: "Fraunhofer LBF / pyLife Team",
+                description: "Wöhler S-N curve damage calculation, stress amplitude life prediction, and Palmgren-Miner cumulative damage via pyLife.",
+                solver: "pyLife",
+                tags: ["fatigue", "durability", "woehler", "sn-curve", "damage"],
+                is_installed: false,
+                is_core: false
+            }
+        ];
+
+        let selectedCategory = "ALL";
+        let searchQuery = "";
+
+        function renderCards() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+
+            const filtered = packagesData.filter(pkg => {
+                const matchCategory = (selectedCategory === "ALL" || pkg.category === selectedCategory);
+                const q = searchQuery.toLowerCase();
+                const matchSearch = (!q || 
+                    pkg.id.toLowerCase().includes(q) ||
+                    pkg.name.toLowerCase().includes(q) ||
+                    pkg.description.toLowerCase().includes(q) ||
+                    pkg.tags.some(t => t.toLowerCase().includes(q))
+                );
+                return matchCategory && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="color: #888; grid-column: 1/-1; text-align: center; padding: 40px;">No simulation templates found matching your filter criteria.</div>';
+                return;
+            }
+
+            filtered.forEach(pkg => {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                const tagsHtml = pkg.tags.map(t => `<span class="tag">#${t}</span>`).join('');
+
+                let actionHtml = '';
+                if (pkg.is_installed) {
+                    actionHtml = `
+                        <div class="action-group">
+                            <button class="btn btn-installed">✓ Installed</button>
+                            ${!pkg.is_core ? `<button class="btn-uninstall" onclick="uninstallPackage('${pkg.id}')">Remove</button>` : ''}
+                        </div>
+                    `;
+                } else {
+                    actionHtml = `
+                        <div class="action-group">
+                            <button class="btn" onclick="installPackage('${pkg.id}')">Install Template</button>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div>
+                        <div class="card-header">
+                            <h3 class="card-title">${pkg.name}</h3>
+                        </div>
+                        <div class="card-meta">
+                            <span class="badge-solver">${pkg.solver}</span>
+                            <span class="badge-ver">v${pkg.version}</span>
+                            <span>•</span>
+                            <span>${pkg.category}</span>
+                        </div>
+                        <div class="card-desc">${pkg.description}</div>
+                        <div class="card-tags">${tagsHtml}</div>
+                    </div>
+                    <div class="card-footer">
+                        <span class="author">By ${pkg.author}</span>
+                        ${actionHtml}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.installPackage = function(packageId) {
+            const pkg = packagesData.find(p => p.id === packageId);
+            if (pkg) {
+                pkg.is_installed = true;
+                renderCards();
+            }
+            if (vscode) {
+                vscode.postMessage({ command: 'installPackage', packageId: packageId });
+            }
+        };
+
+        window.uninstallPackage = function(packageId) {
+            const pkg = packagesData.find(p => p.id === packageId);
+            if (pkg && !pkg.is_core) {
+                pkg.is_installed = false;
+                renderCards();
+            }
+            if (vscode) {
+                vscode.postMessage({ command: 'uninstallPackage', packageId: packageId });
+            }
+        };
+
+        // Filter events
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderCards();
+        });
+
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                selectedCategory = chip.getAttribute('data-category');
+                renderCards();
+            });
+        });
+
+        // Listen for messages from extension host
+        window.addEventListener('message', event => {
+            const message = event.data;
+            if (message.command === 'updateCatalog') {
+                packagesData = message.packages;
+                renderCards();
+            }
+        });
+
+        renderCards();
+    </script>
+</body>
+</html>
