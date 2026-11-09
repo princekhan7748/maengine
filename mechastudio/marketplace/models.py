@@ -31,3 +31,4 @@ class TemplatePackage(BaseModel):
     download_url: Optional[str] = None
     files: List[str] = Field(default_factory=list, description="Included template files, e.g. ['contact.inp.j2']")
     is_installed: bool = False
+

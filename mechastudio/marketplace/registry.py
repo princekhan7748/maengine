@@ -399,3 +399,4 @@ class MarketplaceRegistry:
         """
         packages = self.get_all_packages()
         return json.dumps([p.model_dump() for p in packages], indent=2)
+

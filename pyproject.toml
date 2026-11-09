@@ -29,3 +29,4 @@ mechastudio = "mechastudio.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["mechastudio*"]
+
