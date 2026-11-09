@@ -1,0 +1,39 @@
+name: "Cantilever_Beam_Bending"
+units: "mm_N_MPa_tonne_s"
+cad_file: "beam.step"
+
+materials:
+  - name: "Structural_Steel"
+    density: 7.85e-09
+    elastic:
+      youngs_modulus: 210000.0
+      poissons_ratio: 0.3
+
+sets:
+  - name: "Surface_Fixed"
+    entity_type: "surface"
+    cad_tag_indices: [1] # Face at X=0 (Gmsh OCC surface tag)
+  - name: "Surface_Tip"
+    entity_type: "surface"
+    cad_tag_indices: [2] # Face at X=100
+
+mesh:
+  element_order: 2 # Quadratic TET10 elements
+  algorithm: "hxt"
+  min_size: 2.0
+  max_size: 4.0
+  optimize_high_order: true
+
+steps:
+  - name: "Tip_Load_Step"
+    type: "static_linear"
+    nlgeom: false
+    boundary_conditions:
+      - name: "Fixed_Clamping"
+        type: "fixed"
+        target_set: "Surface_Fixed"
+    loads:
+      - name: "Tip_Downward_Pressure"
+        type: "pressure"
+        magnitude: 10.0 # 10 MPa pressure on tip face
+        target_set: "Surface_Tip"

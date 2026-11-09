@@ -1,0 +1,81 @@
+{
+  "name": "mechastudio",
+  "displayName": "MechaStudio - Mechanical Engineering IDE",
+  "description": "Open-Source Mechanical Engineering IDE: CAD, conformal meshing, CalculiX FEA, and 3D simulation analysis.",
+  "version": "0.1.0",
+  "publisher": "mechastudio-team",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages",
+    "Linters"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:calculix",
+    "workspaceContains:**/mechastudio.yaml",
+    "onCommand:mechastudio.runPipeline"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "mechastudio-explorer",
+          "title": "MechaStudio",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "mechastudio-explorer": [
+        {
+          "id": "mechastudio.modelTree",
+          "name": "Simulation Model Tree"
+        },
+        {
+          "id": "mechastudio.residualsView",
+          "name": "Solver Convergence Telemetry"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "mechastudio.runPipeline",
+        "title": "MechaStudio: Run Full Simulation Pipeline",
+        "category": "MechaStudio"
+      },
+      {
+        "command": "mechastudio.generateMesh",
+        "title": "MechaStudio: Mesh CAD Model (Gmsh)",
+        "category": "MechaStudio"
+      },
+      {
+        "command": "mechastudio.solveCalculix",
+        "title": "MechaStudio: Solve with CalculiX",
+        "category": "MechaStudio"
+      },
+      {
+        "command": "mechastudio.viewResults",
+        "title": "MechaStudio: Open 3D Results Viewport",
+        "category": "MechaStudio"
+      }
+    ],
+    "languages": [
+      {
+        "id": "calculix",
+        "aliases": ["CalculiX Input Deck", "Abaqus Input", "inp"],
+        "extensions": [".inp"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "calculix",
+        "scopeName": "source.calculix",
+        "path": "./syntaxes/calculix.tmLanguage.json"
+      }
+    ]
+  }
+}

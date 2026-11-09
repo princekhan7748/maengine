@@ -1,0 +1,32 @@
+# Python virtual environment
+.venv/
+venv/
+ENV/
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+
+# MechaStudio run outputs & temporary solver scratch
+sim_output/
+sim_runs/
+*.frd
+*.sta
+*.cvg
+*.12d
+*.dat
+*.vtu
+*.msh
+
+# Node / VS Code extension build artifacts
+node_modules/
+out/
+*.vsix
+
+# OS artifacts
+.DS_Store
+Thumbs.db

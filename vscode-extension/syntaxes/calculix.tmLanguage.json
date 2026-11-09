@@ -1,0 +1,53 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "CalculiX",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#parameters"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-asterisk.calculix",
+          "match": "^\\*\\*.*$"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.calculix",
+          "match": "(?i)^\\*(HEADING|MATERIAL|ELASTIC|DENSITY|PLASTIC|EXPANSION|CONDUCTIVITY|SPECIFIC HEAT|SOLID SECTION|SHELL SECTION|STEP|STATIC|DYNAMIC|FREQUENCY|BUCKLE|HEAT TRANSFER|COUPLED TEMPERATURE-DISPLACEMENT|BOUNDARY|CLOAD|DLOAD|TEMPERATURE|CONTACT PAIR|SURFACE INTERACTION|FRICTION|TIE|EQUATION|AMPLITUDE|RESTART|NODE FILE|EL FILE|NODE PRINT|EL PRINT|END STEP)"
+        }
+      ]
+    },
+    "parameters": {
+      "patterns": [
+        {
+          "name": "variable.parameter.calculix",
+          "match": "(?i)(NAME|ELSET|NSET|MATERIAL|INPUT|TYPE|NLGEOM|DIRECT|MODES|TOTALS|FREQUENCY|ALPHA|BETA)\\s*="
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.calculix",
+          "match": "[-+]?\\b\\d+(\\.\\d+)?([eE][-+]?\\d+)?\\b"
+        }
+      ]
+    }
+  },
+  "scopeName": "source.calculix"
+}
