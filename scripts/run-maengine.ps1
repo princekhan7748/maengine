@@ -3,37 +3,26 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $codeRoot = Join-Path $repoRoot 'workbench'
 $product = Get-Content (Join-Path $codeRoot 'product.json') -Raw | ConvertFrom-Json
-$distExe = Join-Path $repoRoot "VSCode-win32-x64\$($product.nameShort).exe"
+
+$distDir = Join-Path $repoRoot 'VSCode-win32-x64'
+$distExe = Join-Path $distDir "$($product.nameShort).exe"
 $electronExe = Join-Path $codeRoot ".build\electron\$($product.nameShort).exe"
 
-if (Test-Path $electronExe) {
-    $appExecutable = $electronExe
-} elseif (Test-Path $distExe) {
-    $appExecutable = $distExe
-} else {
-    throw "The MAEngine executable was not found at $electronExe or $distExe."
+# Clean up any stale/zombie instances that hold single-instance lock
+$existing = Get-Process -Name "$($product.nameShort)" -ErrorAction SilentlyContinue
+if ($existing) {
+    Write-Host "Closing $($existing.Count) existing $($product.nameShort) process(es)..."
+    Stop-Process -Name "$($product.nameShort)" -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Milliseconds 800
 }
 
-if (-not (Test-Path (Join-Path $codeRoot 'out\main.js'))) {
-    throw "Code - OSS is not compiled. Please verify $codeRoot\out\main.js exists."
+# Clean stale lockfile
+$lockFile = Join-Path $env:APPDATA "$($product.nameShort)\code.lock"
+if (Test-Path $lockFile) {
+    Remove-Item $lockFile -Force -ErrorAction SilentlyContinue
 }
 
-if (-not (Test-Path $appExecutable)) {
-    throw "The MAEngine Electron executable was not found at $appExecutable."
-}
-
-$userDataPath = Join-Path $env:APPDATA 'MAEngine'
-$null = New-Item -ItemType Directory -Path $userDataPath -Force
-
-$projectsPath = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'MAEngine Projects'
-$null = New-Item -ItemType Directory -Path $projectsPath -Force
-
-$arguments = @(
-    '.',
-    "--user-data-dir=`"$userDataPath`""
-)
-
-# Scrub parent environment variables that cause Electron to run in headless Node or attach to host VS Code
+# Scrub parent environment variables that cause Electron to attach to host VS Code or run as node
 $envClean = @(
     'ELECTRON_RUN_AS_NODE',
     'VSCODE_IPC_HOOK',
@@ -47,16 +36,33 @@ $envClean = @(
 )
 foreach ($v in $envClean) {
     Remove-Item "Env:\$v" -ErrorAction SilentlyContinue
+    [Environment]::SetEnvironmentVariable($v, $null, 'Process')
 }
 
-$env:NODE_ENV = 'development'
-$env:VSCODE_DEV = '1'
-$env:VSCODE_CLI = '1'
-$env:VSCODE_SKIP_PRELAUNCH = '1'
+if (Test-Path $distExe) {
+    # Run the standalone packaged distribution (native Windows desktop app)
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $distExe
+    $psi.WorkingDirectory = $distDir
+    $psi.UseShellExecute = $true
 
-$process = Start-Process -FilePath $appExecutable `
-    -ArgumentList $arguments `
-    -WorkingDirectory $codeRoot `
-    -PassThru
+    $process = [System.Diagnostics.Process]::Start($psi)
+    Write-Host "Launched $($product.nameLong) (PID $($process.Id))."
+} elseif (Test-Path $electronExe) {
+    # Development runtime fallback
+    $env:NODE_ENV = 'development'
+    $env:VSCODE_DEV = '1'
+    $env:VSCODE_CLI = '1'
+    $env:VSCODE_SKIP_PRELAUNCH = '1'
 
-Write-Host "Started $($product.nameLong) (PID $($process.Id))."
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $electronExe
+    $psi.Arguments = "."
+    $psi.WorkingDirectory = $codeRoot
+    $psi.UseShellExecute = $true
+
+    $process = [System.Diagnostics.Process]::Start($psi)
+    Write-Host "Launched $($product.nameLong) Dev Workbench (PID $($process.Id))."
+} else {
+    throw "MAEngine executable not found at $distExe or $electronExe."
+}
