@@ -3,14 +3,15 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $codeRoot = Join-Path $repoRoot 'workbench'
 $product = Get-Content (Join-Path $codeRoot 'product.json') -Raw | ConvertFrom-Json
-$electronDirectory = Join-Path $codeRoot '.build\electron'
-$appExecutable = Join-Path $electronDirectory "$($product.nameShort).exe"
+$distExe = Join-Path $repoRoot "VSCode-win32-x64\$($product.nameShort).exe"
+$electronExe = Join-Path $codeRoot ".build\electron\$($product.nameShort).exe"
 
-if (-not (Test-Path $appExecutable)) {
-    $distExe = Join-Path $repoRoot "VSCode-win32-x64\$($product.nameShort).exe"
-    if (Test-Path $distExe) {
-        $appExecutable = $distExe
-    }
+if (Test-Path $distExe) {
+    $appExecutable = $distExe
+} elseif (Test-Path $electronExe) {
+    $appExecutable = $electronExe
+} else {
+    throw "The MAEngine executable was not found at $distExe or $electronExe."
 }
 
 if (-not (Test-Path (Join-Path $codeRoot 'out\main.js'))) {
@@ -59,5 +60,3 @@ $process = Start-Process -FilePath $appExecutable `
     -PassThru
 
 Write-Host "Started $($product.nameLong) (PID $($process.Id))."
-
-$process.WaitForExit()
