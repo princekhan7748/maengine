@@ -31,7 +31,7 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).regis
 		'security.workspace.trust.enabled': false,
 		'window.menuBarVisibility': 'compact',
 		'window.commandCenter': true,
-		'workbench.activityBar.location': 'top',
+		'workbench.activityBar.location': 'default',
 		'workbench.editor.tabSizing': 'shrink',
 		'files.associations': { '*.maengine': 'json', '*.maengine': 'json' },
 	},

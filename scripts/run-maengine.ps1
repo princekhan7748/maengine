@@ -60,3 +60,31 @@ $process = Start-Process -FilePath $appExecutable `
 
 Write-Host "Started $($product.nameLong) (PID $($process.Id))."
 
+# Ensure the window is brought to the foreground on the user's interactive desktop
+Start-Sleep -Seconds 2
+$appDef = @'
+using System;
+using System.Runtime.InteropServices;
+public static class WindowActivator {
+    [DllImport("user32.dll")]
+    public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    [DllImport("user32.dll")]
+    public static extern bool SetForegroundWindow(IntPtr hWnd);
+    [DllImport("user32.dll")]
+    public static extern bool BringWindowToTop(IntPtr hWnd);
+}
+'@
+Add-Type -TypeDefinition $appDef -ErrorAction SilentlyContinue
+
+$deadline = (Get-Date).AddSeconds(10)
+while ((Get-Date) -lt $deadline) {
+    $proc = Get-Process -Name "*MAEngine*" -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne [IntPtr]::Zero } | Select-Object -First 1
+    if ($proc) {
+        Write-Host "Found MAEngine Window (Handle: $($proc.MainWindowHandle), Title: '$($proc.MainWindowTitle)'). Activating..."
+        [WindowActivator]::ShowWindow($proc.MainWindowHandle, 3) # SW_MAXIMIZE
+        [WindowActivator]::SetForegroundWindow($proc.MainWindowHandle)
+        [WindowActivator]::BringWindowToTop($proc.MainWindowHandle)
+        break
+    }
+    Start-Sleep -Milliseconds 500
+}
