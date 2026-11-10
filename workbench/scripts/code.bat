@@ -1,7 +1,18 @@
 @echo off
 setlocal
 
-title SAEngine Dev
+title MAEngine Dev
+
+rem Clean any parent VSCode / Antigravity environment hooks
+set ELECTRON_RUN_AS_NODE=
+set VSCODE_IPC_HOOK=
+set VSCODE_PID=
+set VSCODE_CWD=
+set VSCODE_CODE_CACHE_PATH=
+set VSCODE_CRASH_REPORTER_PROCESS_TYPE=
+set VSCODE_ESM_ENTRYPOINT=
+set VSCODE_HANDLES_UNCAUGHT_ERRORS=
+set ANTIGRAVITY_VSCODE_HOST=
 
 pushd %~dp0\..
 
@@ -21,11 +32,8 @@ exit /b 1
 
 :prelaunch_complete
 
-set "NAMESHORT="
-for /f "tokens=2 delims=:," %%a in ('findstr /R /C:"\"nameShort\":.*" product.json') do if not defined NAMESHORT set "NAMESHORT=%%~a"
-set NAMESHORT=%NAMESHORT: "=%
-set NAMESHORT=%NAMESHORT:"=%.exe
-set CODE=".build\electron\%NAMESHORT%"
+set CODE=".build\electron\MAEngine.exe"
+if not exist %CODE% set CODE=".build\electron\Code - OSS.exe"
 
 :: Manage built-in extensions
 if "%~1"=="--builtin" goto builtin

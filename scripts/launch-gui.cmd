@@ -27,8 +27,8 @@ set "USER_DATA=%APPDATA%\MAEngine"
 
 if not exist "%USER_DATA%" mkdir "%USER_DATA%"
 
-set "APP_EXE=%REPO_ROOT%\VSCode-win32-x64\MAEngine.exe"
-if not exist "%APP_EXE%" set "APP_EXE=%WORKBENCH_ROOT%\.build\electron\MAEngine.exe"
+set "APP_EXE=%WORKBENCH_ROOT%\.build\electron\MAEngine.exe"
+if not exist "%APP_EXE%" set "APP_EXE=%REPO_ROOT%\VSCode-win32-x64\MAEngine.exe"
 
 cd /d "%WORKBENCH_ROOT%"
 echo Starting MAEngine Desktop Application...

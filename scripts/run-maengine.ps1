@@ -6,12 +6,12 @@ $product = Get-Content (Join-Path $codeRoot 'product.json') -Raw | ConvertFrom-J
 $distExe = Join-Path $repoRoot "VSCode-win32-x64\$($product.nameShort).exe"
 $electronExe = Join-Path $codeRoot ".build\electron\$($product.nameShort).exe"
 
-if (Test-Path $distExe) {
-    $appExecutable = $distExe
-} elseif (Test-Path $electronExe) {
+if (Test-Path $electronExe) {
     $appExecutable = $electronExe
+} elseif (Test-Path $distExe) {
+    $appExecutable = $distExe
 } else {
-    throw "The MAEngine executable was not found at $distExe or $electronExe."
+    throw "The MAEngine executable was not found at $electronExe or $distExe."
 }
 
 if (-not (Test-Path (Join-Path $codeRoot 'out\main.js'))) {

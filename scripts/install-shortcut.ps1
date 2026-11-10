@@ -28,3 +28,4 @@ foreach ($path in $targets) {
     $shortcut.Save()
     Write-Host "Created $path"
 }
+
