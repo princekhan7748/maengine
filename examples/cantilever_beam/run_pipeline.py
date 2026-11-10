@@ -1,23 +1,23 @@
 """
-MechaStudio End-to-End Pipeline Demonstration
+MAEngine End-to-End Pipeline Demonstration
 Executes CAD Generation -> Conformal Meshing (Gmsh) -> Deck Compilation (CalculiX) -> Analysis.
 """
 
 import os
 import sys
 
-# Ensure local mechastudio package is on sys.path
+# Ensure local maengine package is on sys.path
 base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if base_dir not in sys.path:
     sys.path.insert(0, base_dir)
 
-from mechastudio.pipeline import SimulationPipeline
+from maengine.pipeline import SimulationPipeline
 from examples.cantilever_beam.cantilever import create_cantilever_beam
 
 
 def main():
     print("=" * 70)
-    print(" MECHASTUDIO: OPEN-SOURCE MECHANICAL ENGINEERING IDE PIPELINE")
+    print(" MAENGINE: OPEN-SOURCE MECHANICAL ENGINEERING IDE PIPELINE")
     print("=" * 70)
 
     example_dir = os.path.dirname(os.path.abspath(__file__))
@@ -28,8 +28,8 @@ def main():
     print("\n[1/4] Generating Parametric CAD Model (build123d / OpenCASCADE)...")
     create_cantilever_beam(length=100.0, width=10.0, height=10.0, step_output_path=step_path)
 
-    # Step 2: Initialize MechaStudio Pipeline
-    print("\n[2/4] Initializing MechaStudio Simulation Pipeline from YAML...")
+    # Step 2: Initialize MAEngine Pipeline
+    print("\n[2/4] Initializing MAEngine Simulation Pipeline from YAML...")
     pipeline = SimulationPipeline.from_yaml(yaml_path, work_dir=os.path.join(example_dir, "sim_output"))
     print(f"  Project Name: {pipeline.project.name}")
     print(f"  Unit System : {pipeline.project.units.value}")

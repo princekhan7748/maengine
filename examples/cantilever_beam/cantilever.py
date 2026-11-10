@@ -1,6 +1,6 @@
 """
 Cantilever Beam Model Generator (Code-CAD via build123d)
-Demonstrates parametric CAD creation and export to STEP for MechaStudio.
+Demonstrates parametric CAD creation and export to STEP for MAEngine.
 """
 
 import os

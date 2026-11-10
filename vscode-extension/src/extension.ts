@@ -11,11 +11,11 @@ import {
 let client: LanguageClient;
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('MechaStudio extension is now active!');
+    console.log('MAEngine extension is now active!');
 
     // 1. Initialize Language Server Protocol (pygls server)
     const pythonPath = getPythonInterpreterPath();
-    const serverScript = context.asAbsolutePath(path.join('..', 'mechastudio', 'lsp', 'server.py'));
+    const serverScript = context.asAbsolutePath(path.join('..', 'maengine', 'lsp', 'server.py'));
 
     if (fs.existsSync(serverScript)) {
         const serverOptions: ServerOptions = {
@@ -28,8 +28,8 @@ export function activate(context: vscode.ExtensionContext) {
         };
 
         client = new LanguageClient(
-            'mechastudioLSP',
-            'MechaStudio Language Server',
+            'maengineLSP',
+            'MAEngine Language Server',
             serverOptions,
             clientOptions
         );
@@ -38,31 +38,31 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     // 2. Register Commands
-    const runPipelineCmd = vscode.commands.registerCommand('mechastudio.runPipeline', async () => {
+    const runPipelineCmd = vscode.commands.registerCommand('maengine.runPipeline', async () => {
         const terminal = getOrCreateTerminal();
         terminal.show();
-        terminal.sendText(`${pythonPath} -m mechastudio run examples/cantilever_beam/simulation.yaml`);
+        terminal.sendText(`${pythonPath} -m maengine run examples/cantilever_beam/simulation.yaml`);
     });
 
-    const generateMeshCmd = vscode.commands.registerCommand('mechastudio.generateMesh', async () => {
-        vscode.window.showInformationMessage('MechaStudio: Generating conformal 3D quadratic mesh via Gmsh...');
+    const generateMeshCmd = vscode.commands.registerCommand('maengine.generateMesh', async () => {
+        vscode.window.showInformationMessage('MAEngine: Generating conformal 3D quadratic mesh via Gmsh...');
         const terminal = getOrCreateTerminal();
         terminal.show();
-        terminal.sendText(`${pythonPath} -m mechastudio mesh examples/cantilever_beam/simulation.yaml`);
+        terminal.sendText(`${pythonPath} -m maengine mesh examples/cantilever_beam/simulation.yaml`);
     });
 
-    const solveCalculixCmd = vscode.commands.registerCommand('mechastudio.solveCalculix', async () => {
-        vscode.window.showInformationMessage('MechaStudio: Launching CalculiX CrunchiX implicit solver...');
+    const solveCalculixCmd = vscode.commands.registerCommand('maengine.solveCalculix', async () => {
+        vscode.window.showInformationMessage('MAEngine: Launching CalculiX CrunchiX implicit solver...');
         const terminal = getOrCreateTerminal();
         terminal.show();
-        terminal.sendText(`${pythonPath} -m mechastudio solve examples/cantilever_beam/simulation.yaml`);
+        terminal.sendText(`${pythonPath} -m maengine solve examples/cantilever_beam/simulation.yaml`);
     });
 
     // 3. Register 3D Results Viewport Command
-    const viewResultsCmd = vscode.commands.registerCommand('mechastudio.viewResults', async () => {
+    const viewResultsCmd = vscode.commands.registerCommand('maengine.viewResults', async () => {
         const panel = vscode.window.createWebviewPanel(
-            'mechastudioResults',
-            'MechaStudio: 3D Simulation Viewport',
+            'maengineResults',
+            'MAEngine: 3D Simulation Viewport',
             vscode.ViewColumn.Beside,
             {
                 enableScripts: true,
@@ -98,10 +98,10 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // 4. Register Simulation Marketplace Command
-    const openMarketplaceCmd = vscode.commands.registerCommand('mechastudio.openMarketplace', async () => {
+    const openMarketplaceCmd = vscode.commands.registerCommand('maengine.openMarketplace', async () => {
         const panel = vscode.window.createWebviewPanel(
-            'mechastudioMarketplace',
-            'MechaStudio: Simulation Marketplace',
+            'maengineMarketplace',
+            'MAEngine: Simulation Marketplace',
             vscode.ViewColumn.One,
             {
                 enableScripts: true,
@@ -120,8 +120,8 @@ export function activate(context: vscode.ExtensionContext) {
         panel.webview.onDidReceiveMessage(async (message) => {
             if (message.command === 'installPackage') {
                 const packageId = message.packageId;
-                vscode.window.showInformationMessage(`MechaStudio Marketplace: Installing ${packageId}...`);
-                exec(`${pythonPath} -m mechastudio marketplace install ${packageId}`, (error, stdout, stderr) => {
+                vscode.window.showInformationMessage(`MAEngine Marketplace: Installing ${packageId}...`);
+                exec(`${pythonPath} -m maengine marketplace install ${packageId}`, (error, stdout, stderr) => {
                     if (error) {
                         vscode.window.showErrorMessage(`Installation failed: ${stderr || error.message}`);
                     } else {
@@ -131,8 +131,8 @@ export function activate(context: vscode.ExtensionContext) {
                 });
             } else if (message.command === 'uninstallPackage') {
                 const packageId = message.packageId;
-                vscode.window.showInformationMessage(`MechaStudio Marketplace: Removing ${packageId}...`);
-                exec(`${pythonPath} -m mechastudio marketplace uninstall ${packageId}`, (error, stdout, stderr) => {
+                vscode.window.showInformationMessage(`MAEngine Marketplace: Removing ${packageId}...`);
+                exec(`${pythonPath} -m maengine marketplace uninstall ${packageId}`, (error, stdout, stderr) => {
                     if (error) {
                         vscode.window.showErrorMessage(`Removal failed: ${stderr || error.message}`);
                     } else {
@@ -148,8 +148,8 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // 5. Register Model Tree View
-    const treeDataProvider = new MechaStudioTreeDataProvider();
-    vscode.window.registerTreeDataProvider('mechastudio.modelTree', treeDataProvider);
+    const treeDataProvider = new MAEngineTreeDataProvider();
+    vscode.window.registerTreeDataProvider('maengine.modelTree', treeDataProvider);
 
     context.subscriptions.push(
         runPipelineCmd,
@@ -161,7 +161,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function syncMarketplaceCatalog(panel: vscode.WebviewPanel, pythonPath: string) {
-    exec(`${pythonPath} -m mechastudio marketplace export-json`, (error, stdout) => {
+    exec(`${pythonPath} -m maengine marketplace export-json`, (error, stdout) => {
         if (!error && stdout) {
             try {
                 const packages = JSON.parse(stdout);
@@ -193,12 +193,12 @@ function getPythonInterpreterPath(): string {
 }
 
 function getOrCreateTerminal(): vscode.Terminal {
-    const name = 'MechaStudio Engine';
+    const name = 'MAEngine Engine';
     const existing = vscode.window.terminals.find(t => t.name === name);
     return existing || vscode.window.createTerminal(name);
 }
 
-class MechaStudioTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
+class MAEngineTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
     getTreeItem(element: TreeItem): vscode.TreeItem {
         return element;
     }
@@ -212,8 +212,8 @@ class MechaStudioTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
                 new TreeItem('Steps: Tip_Load_Step', vscode.TreeItemCollapsibleState.Collapsed, 'play-circle'),
                 new TreeItem('Boundary Conditions: Fixed', vscode.TreeItemCollapsibleState.None, 'lock'),
                 new TreeItem('Loads: Tip Pressure (10 MPa)', vscode.TreeItemCollapsibleState.None, 'arrow-down'),
-                new TreeItem('Results & Post-Processing', vscode.TreeItemCollapsibleState.None, 'graph-line', 'mechastudio.viewResults'),
-                new TreeItem('Simulation Marketplace (Hub)', vscode.TreeItemCollapsibleState.None, 'extensions', 'mechastudio.openMarketplace')
+                new TreeItem('Results & Post-Processing', vscode.TreeItemCollapsibleState.None, 'graph-line', 'maengine.viewResults'),
+                new TreeItem('Simulation Marketplace (Hub)', vscode.TreeItemCollapsibleState.None, 'extensions', 'maengine.openMarketplace')
             ]);
         }
         if (element.label === 'Materials (1)') {

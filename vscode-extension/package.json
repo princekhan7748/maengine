@@ -1,9 +1,9 @@
 {
-  "name": "mechastudio",
-  "displayName": "MechaStudio - Mechanical Engineering IDE",
+  "name": "maengine",
+  "displayName": "MAEngine - Mechanical Engineering IDE",
   "description": "Open-Source Mechanical Engineering IDE: CAD, conformal meshing, CalculiX FEA, and 3D simulation analysis.",
   "version": "0.1.0",
-  "publisher": "mechastudio-team",
+  "publisher": "maengine-team",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -19,7 +19,8 @@
     "watch": "tsc -watch -p ./"
   },
   "dependencies": {
-    "vscode-languageclient": "^9.0.1"
+    "vscode-languageclient": "^9.0.1",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
@@ -29,61 +30,61 @@
   },
   "activationEvents": [
     "onStartupFinished",
-    "onView:mechastudio.modelTree",
+    "onView:maengine.modelTree",
     "onLanguage:calculix",
     "workspaceContains:**/simulation.yaml",
-    "workspaceContains:**/mechastudio.yaml",
-    "onCommand:mechastudio.runPipeline",
-    "onCommand:mechastudio.openMarketplace",
-    "onCommand:mechastudio.viewResults"
+    "workspaceContains:**/maengine.yaml",
+    "onCommand:maengine.runPipeline",
+    "onCommand:maengine.openMarketplace",
+    "onCommand:maengine.viewResults"
   ],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "mechastudio-explorer",
-          "title": "MechaStudio",
+          "id": "maengine-explorer",
+          "title": "MAEngine",
           "icon": "media/icon.svg"
         }
       ]
     },
     "views": {
-      "mechastudio-explorer": [
+      "maengine-explorer": [
         {
-          "id": "mechastudio.modelTree",
+          "id": "maengine.modelTree",
           "name": "Simulation Model Tree"
         },
         {
-          "id": "mechastudio.residualsView",
+          "id": "maengine.residualsView",
           "name": "Solver Convergence Telemetry"
         }
       ]
     },
     "commands": [
       {
-        "command": "mechastudio.runPipeline",
-        "title": "MechaStudio: Run Full Simulation Pipeline",
-        "category": "MechaStudio"
+        "command": "maengine.runPipeline",
+        "title": "MAEngine: Run Full Simulation Pipeline",
+        "category": "MAEngine"
       },
       {
-        "command": "mechastudio.generateMesh",
-        "title": "MechaStudio: Mesh CAD Model (Gmsh)",
-        "category": "MechaStudio"
+        "command": "maengine.generateMesh",
+        "title": "MAEngine: Mesh CAD Model (Gmsh)",
+        "category": "MAEngine"
       },
       {
-        "command": "mechastudio.solveCalculix",
-        "title": "MechaStudio: Solve with CalculiX",
-        "category": "MechaStudio"
+        "command": "maengine.solveCalculix",
+        "title": "MAEngine: Solve with CalculiX",
+        "category": "MAEngine"
       },
       {
-        "command": "mechastudio.viewResults",
-        "title": "MechaStudio: Open 3D Results Viewport",
-        "category": "MechaStudio"
+        "command": "maengine.viewResults",
+        "title": "MAEngine: Open 3D Results Viewport",
+        "category": "MAEngine"
       },
       {
-        "command": "mechastudio.openMarketplace",
-        "title": "MechaStudio: Open Simulation Marketplace",
-        "category": "MechaStudio"
+        "command": "maengine.openMarketplace",
+        "title": "MAEngine: Open Simulation Marketplace",
+        "category": "MAEngine"
       }
     ],
     "languages": [

@@ -66,7 +66,7 @@ import './services/workspaces/common/canonicalUriService.js';
 import './services/extensions/browser/extensionUrlHandler.js';
 import './services/keybinding/common/keybindingEditing.js';
 import './services/decorations/browser/decorationsService.js';
-import './services/mechastudioProject/browser/mechastudioProjectService.js';
+import './services/maengineProject/browser/maengineProjectService.js';
 import './services/dialogs/common/dialogService.js';
 import './services/progress/browser/progressService.js';
 import './services/editor/browser/codeEditorService.js';
@@ -248,17 +248,17 @@ import './contrib/replNotebook/browser/repl.contribution.js';
 // Testing
 import './contrib/testing/browser/testing.contribution.js';
 
-// Mechanical Engineering (MechaStudio)
-import './contrib/mechastudioShell/browser/mechastudioShell.contribution.js';
-import './contrib/mechastudioProject/browser/mechastudioProject.contribution.js';
-import './contrib/mechastudioProject/browser/mechastudioNavigator.contribution.js';
-import './contrib/mechastudioCad/browser/mechastudioCad.contribution.js';
-import './contrib/mechastudioMaterial/browser/mechastudioMaterial.contribution.js';
-import './contrib/mechastudioMesh/browser/mechastudioMesh.contribution.js';
-import './contrib/mechastudioPhysics/browser/mechastudioPhysics.contribution.js';
-import './contrib/mechastudioSolver/browser/mechastudioSolver.contribution.js';
-import './contrib/mechastudioResults/browser/mechastudioResults.contribution.js';
-import './contrib/mechastudioMarketplace/browser/mechastudioMarketplace.contribution.js';
+// Mechanical Engineering (MAEngine)
+import './contrib/maengineShell/browser/maengineShell.contribution.js';
+import './contrib/maengineProject/browser/maengineProject.contribution.js';
+import './contrib/maengineProject/browser/maengineNavigator.contribution.js';
+import './contrib/maengineCad/browser/maengineCad.contribution.js';
+import './contrib/maengineMaterial/browser/maengineMaterial.contribution.js';
+import './contrib/maengineMesh/browser/maengineMesh.contribution.js';
+import './contrib/maenginePhysics/browser/maenginePhysics.contribution.js';
+import './contrib/maengineSolver/browser/maengineSolver.contribution.js';
+import './contrib/maengineResults/browser/maengineResults.contribution.js';
+import './contrib/maengineMarketplace/browser/maengineMarketplace.contribution.js';
 
 // Logs
 import './contrib/logs/common/logs.contribution.js';

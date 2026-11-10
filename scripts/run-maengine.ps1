@@ -59,3 +59,4 @@ $process = Start-Process -FilePath $appExecutable `
     -PassThru
 
 Write-Host "Started $($product.nameLong) (PID $($process.Id))."
+
