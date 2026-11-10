@@ -10,15 +10,15 @@ import { Registry } from '../../../../platform/registry/common/platform.js';
 export const DEVELOPER_MODE_SETTING = 'mechastudio.developerMode';
 
 Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).registerConfiguration({
-	id: 'mechastudioShell',
-	title: localize('mechastudio.configurationTitle', "MechaStudio"),
+	id: 'maengineShell',
+	title: localize('maengine.configurationTitle', "MAEngine"),
 	type: 'object',
 	properties: {
 		[DEVELOPER_MODE_SETTING]: {
 			type: 'boolean',
 			default: false,
 			scope: ConfigurationScope.APPLICATION,
-			markdownDescription: localize('mechastudio.developerMode', "Shows the developer code-editor features of the workbench (source control, debug, terminal). When off, MechaStudio presents an engineering-first desktop interface."),
+			markdownDescription: localize('maengine.developerMode', "Shows the developer code-editor features of the workbench (source control, debug, terminal). When off, MAEngine presents an engineering-first desktop interface."),
 		},
 	},
 });
@@ -33,6 +33,7 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).regis
 		'window.commandCenter': true,
 		'workbench.activityBar.location': 'top',
 		'workbench.editor.tabSizing': 'shrink',
-		'files.associations': { '*.mechastudio': 'json' },
+		'files.associations': { '*.maengine': 'json', '*.mechastudio': 'json' },
 	},
 }]);
+

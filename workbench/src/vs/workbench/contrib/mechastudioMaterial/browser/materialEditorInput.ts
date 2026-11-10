@@ -39,3 +39,4 @@ export class MaterialEditorInput extends EditorInput {
 		return other instanceof MaterialEditorInput && other.resource.toString() === this.resource.toString();
 	}
 }
+

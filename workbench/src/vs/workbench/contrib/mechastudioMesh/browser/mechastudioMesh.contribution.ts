@@ -15,3 +15,4 @@ Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane
 	EditorPaneDescriptor.create(MeshEditor, MeshEditorInput.EDITOR_ID, localize('meshEditor', "04 3D Conformal Mesh")),
 	[new SyncDescriptor(MeshEditorInput)]
 );
+

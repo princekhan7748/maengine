@@ -8,7 +8,8 @@ import { URI } from '../../../../base/common/uri.js';
 import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
 import { localize } from '../../../../nls.js';
 
-export const PROJECT_MANIFEST_EXTENSION = '.mechastudio';
+export const PROJECT_MANIFEST_EXTENSION = '.maengine';
+export const LEGACY_PROJECT_MANIFEST_EXTENSION = '.mechastudio';
 export const PROJECT_MANIFEST_SCHEMA = 1;
 
 export type UnitSystem = 'mm_N_MPa_tonne_s' | 'm_N_Pa_kg_s' | 'in_lbf_psi';
@@ -39,8 +40,8 @@ export const PROJECT_PARTS: readonly IProjectPart[] = [
 			schema: 1,
 			project: {
 				name,
-				author: 'MechaStudio User',
-				description: 'Mechanical FEA Simulation Project',
+				author: 'MAEngine User',
+				description: 'Mechanical Analysis Engine Simulation Project',
 				unitSystem: units,
 				defaultSolver: 'calculix'
 			}
@@ -239,3 +240,4 @@ export interface IMechastudioProjectService {
 	createProject(targetFolder: URI, projectName: string, unitSystem: UnitSystem): Promise<IMechastudioProject>;
 	isProtected(uri: URI): boolean;
 }
+

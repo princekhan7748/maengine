@@ -20,10 +20,10 @@ import { IMechastudioProjectService, UnitSystem } from '../../../services/mechas
 import { StartEditor } from './startEditor.js';
 import { StartEditorInput } from './startEditorInput.js';
 
-const category = localize2('mechastudio.category', "MechaStudio");
+const category = localize2('maengine.category', "MAEngine");
 
 Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane(
-	EditorPaneDescriptor.create(StartEditor, StartEditorInput.EDITOR_ID, localize('mechastudioStartEditor', "MechaStudio Start")),
+	EditorPaneDescriptor.create(StartEditor, StartEditorInput.EDITOR_ID, localize('maengineStartEditor', "MAEngine Start")),
 	[new SyncDescriptor(StartEditorInput)]
 );
 
@@ -58,7 +58,7 @@ registerAction2(class extends Action2 {
 	constructor() {
 		super({
 			id: 'mechastudio.project.showStart',
-			title: localize2('mechastudio.showStart', "Show MechaStudio Start Window"),
+			title: localize2('maengine.showStart', "Show MAEngine Start Window"),
 			category,
 			f1: true,
 		});
@@ -78,7 +78,8 @@ CommandsRegistry.registerCommand('mechastudio.project.create', async (accessor: 
 	const units = args?.units || 'mm_N_MPa_tonne_s';
 
 	// Default target directory
-	const root = contextService.getWorkspace().folders[0]?.uri || URI.file('C:\\Users\\rashe\\Documents\\MechaStudio Projects');
+	const root = contextService.getWorkspace().folders[0]?.uri || URI.file('C:\\Users\\rashe\\Documents\\MAEngine Projects');
 	const project = await projectService.createProject(root, name, units);
 	await commandService.executeCommand('vscode.openFolder', project.root);
 });
+

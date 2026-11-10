@@ -15,3 +15,4 @@ Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane
 	EditorPaneDescriptor.create(PhysicsEditor, PhysicsEditorInput.EDITOR_ID, localize('physicsEditor', "05 Physics & BCs")),
 	[new SyncDescriptor(PhysicsEditorInput)]
 );
+

@@ -21,6 +21,7 @@ import {
 	IMechastudioProjectService,
 	IProjectManifest,
 	PROJECT_MANIFEST_EXTENSION,
+	LEGACY_PROJECT_MANIFEST_EXTENSION,
 	PROJECT_PARTS,
 	UnitSystem
 } from '../common/mechastudioProject.js';
@@ -75,7 +76,7 @@ export class MechastudioProjectService extends Disposable implements IMechastudi
 			if (!stat.children) {
 				return undefined;
 			}
-			const manifestEntry = stat.children.find(child => child.name.endsWith(PROJECT_MANIFEST_EXTENSION));
+			const manifestEntry = stat.children.find(child => child.name.endsWith(PROJECT_MANIFEST_EXTENSION) || child.name.endsWith(LEGACY_PROJECT_MANIFEST_EXTENSION));
 			if (!manifestEntry) {
 				return undefined;
 			}
@@ -155,3 +156,4 @@ export class MechastudioProjectService extends Disposable implements IMechastudi
 }
 
 registerSingleton(IMechastudioProjectService, MechastudioProjectService, InstantiationType.Delayed);
+

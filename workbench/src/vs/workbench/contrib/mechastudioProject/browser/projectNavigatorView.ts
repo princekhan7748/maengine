@@ -65,11 +65,11 @@ export class ProjectNavigatorView extends ViewPane {
 
 		const pName = append(header, $('div'));
 		pName.style.cssText = 'font-weight: 600; font-size: 13px; color: var(--vscode-foreground);';
-		pName.textContent = project ? project.manifest.name : 'MechaStudio Workspace';
+		pName.textContent = project ? project.manifest.name : 'MAEngine Workspace';
 
 		const pSub = append(header, $('div'));
 		pSub.style.cssText = 'font-size: 11px; color: var(--vscode-descriptionForeground); margin-top: 2px;';
-		pSub.textContent = project ? `Units: ${project.manifest.unitSystem}` : 'Standard Mechanical FEA Workflow';
+		pSub.textContent = project ? `Units: ${project.manifest.unitSystem}` : 'Mechanical Analysis Engine Workflow';
 
 		// Parts List
 		const list = append(this.container, $('.parts-list'));
@@ -149,3 +149,4 @@ export class ProjectNavigatorView extends ViewPane {
 		}
 	}
 }
+

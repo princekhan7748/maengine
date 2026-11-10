@@ -15,3 +15,4 @@ Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane
 	EditorPaneDescriptor.create(MarketplaceEditor, MarketplaceEditorInput.EDITOR_ID, localize('marketplaceEditor', "08 Marketplace Hub")),
 	[new SyncDescriptor(MarketplaceEditorInput)]
 );
+

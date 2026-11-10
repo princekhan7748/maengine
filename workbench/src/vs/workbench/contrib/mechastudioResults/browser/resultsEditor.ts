@@ -188,3 +188,4 @@ export class ResultsEditor extends EditorPane {
 		this.scrollable.scanDomNode();
 	}
 }
+

@@ -14,11 +14,11 @@ import { ProjectNavigatorView } from './projectNavigatorView.js';
 
 export const MECHASTUDIO_VIEW_CONTAINER_ID = 'workbench.view.mechastudio.project';
 
-const projectViewIcon = registerIcon('mechastudio-project-view-icon', Codicon.project, localize('projectViewIcon', "View icon of the MechaStudio engineering project sidebar."));
+const projectViewIcon = registerIcon('mechastudio-project-view-icon', Codicon.project, localize('projectViewIcon', "View icon of the MAEngine engineering project sidebar."));
 
 const container = Registry.as<IViewContainersRegistry>(ViewExtensions.ViewContainersRegistry).registerViewContainer({
 	id: MECHASTUDIO_VIEW_CONTAINER_ID,
-	title: localize2('project', "MechaStudio"),
+	title: localize2('project', "MAEngine"),
 	icon: projectViewIcon,
 	order: 0,
 	ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [MECHASTUDIO_VIEW_CONTAINER_ID, { 'merge-view-with-container': true } as any]),
@@ -28,7 +28,7 @@ const container = Registry.as<IViewContainersRegistry>(ViewExtensions.ViewContai
 
 Registry.as<IViewsRegistry>(ViewExtensions.ViewsRegistry).registerViews([{
 	id: 'workbench.view.mechastudio.navigator',
-	name: localize2('navigator', "Mechanical CAE Workflow"),
+	name: localize2('navigator', "Mechanical Analysis Engine (MAE)"),
 	container,
 	ctorDescriptor: new SyncDescriptor(ProjectNavigatorView),
 	canToggleVisibility: false,

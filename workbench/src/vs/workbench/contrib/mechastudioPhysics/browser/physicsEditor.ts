@@ -162,3 +162,4 @@ export class PhysicsEditor extends EditorPane {
 		this.scrollable.scanDomNode();
 	}
 }
+

@@ -200,3 +200,4 @@ export class MeshEditor extends EditorPane {
 		this.scrollable.scanDomNode();
 	}
 }
+

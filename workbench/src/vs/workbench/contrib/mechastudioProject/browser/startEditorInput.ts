@@ -37,3 +37,4 @@ export class StartEditorInput extends EditorInput {
 		return other instanceof StartEditorInput;
 	}
 }
+

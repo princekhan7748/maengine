@@ -15,3 +15,4 @@ Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane
 	EditorPaneDescriptor.create(SolverEditor, SolverEditorInput.EDITOR_ID, localize('solverEditor', "06 Solver Manager")),
 	[new SyncDescriptor(SolverEditorInput)]
 );
+

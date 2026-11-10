@@ -39,3 +39,4 @@ export class CadEditorInput extends EditorInput {
 		return other instanceof CadEditorInput && other.resource.toString() === this.resource.toString();
 	}
 }
+

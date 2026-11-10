@@ -15,3 +15,4 @@ Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane
 	EditorPaneDescriptor.create(MaterialEditor, MaterialEditorInput.EDITOR_ID, localize('materialEditor', "03 Materials")),
 	[new SyncDescriptor(MaterialEditorInput)]
 );
+

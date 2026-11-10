@@ -39,3 +39,4 @@ export class SolverEditorInput extends EditorInput {
 		return other instanceof SolverEditorInput && other.resource.toString() === this.resource.toString();
 	}
 }
+

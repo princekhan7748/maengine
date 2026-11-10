@@ -39,3 +39,4 @@ export class MeshEditorInput extends EditorInput {
 		return other instanceof MeshEditorInput && other.resource.toString() === this.resource.toString();
 	}
 }
+

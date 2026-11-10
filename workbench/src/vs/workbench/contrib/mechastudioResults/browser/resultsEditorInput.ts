@@ -39,3 +39,4 @@ export class ResultsEditorInput extends EditorInput {
 		return other instanceof ResultsEditorInput && other.resource.toString() === this.resource.toString();
 	}
 }
+

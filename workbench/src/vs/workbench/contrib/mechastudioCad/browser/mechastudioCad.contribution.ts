@@ -15,3 +15,4 @@ Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane
 	EditorPaneDescriptor.create(CadEditor, CadEditorInput.EDITOR_ID, localize('cadEditor', "02 Geometry & CAD")),
 	[new SyncDescriptor(CadEditorInput)]
 );
+

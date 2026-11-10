@@ -39,3 +39,4 @@ export class MarketplaceEditorInput extends EditorInput {
 		return other instanceof MarketplaceEditorInput;
 	}
 }
+

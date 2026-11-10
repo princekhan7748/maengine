@@ -15,3 +15,4 @@ Registry.as<IEditorPaneRegistry>(EditorExtensions.EditorPane).registerEditorPane
 	EditorPaneDescriptor.create(ResultsEditor, ResultsEditorInput.EDITOR_ID, localize('resultsEditor', "07 Analysis Results")),
 	[new SyncDescriptor(ResultsEditorInput)]
 );
+

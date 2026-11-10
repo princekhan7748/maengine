@@ -39,3 +39,4 @@ export class PhysicsEditorInput extends EditorInput {
 		return other instanceof PhysicsEditorInput && other.resource.toString() === this.resource.toString();
 	}
 }
+

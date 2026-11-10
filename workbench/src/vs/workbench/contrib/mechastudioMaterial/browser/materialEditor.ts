@@ -174,3 +174,4 @@ export class MaterialEditor extends EditorPane {
 		this.scrollable.scanDomNode();
 	}
 }
+

@@ -62,7 +62,7 @@ export class MarketplaceEditor extends EditorPane {
 
 		const title = append(titleRow, $('h2'));
 		title.style.cssText = 'margin: 0; font-size: 22px; font-weight: 600;';
-		title.textContent = 'MechaStudio Engineering Marketplace';
+		title.textContent = 'MAEngine Engineering Marketplace';
 
 		const searchBox = append(header, $('input')) as HTMLInputElement;
 		searchBox.style.cssText = 'width: 100%; background: var(--vscode-input-background); color: var(--vscode-input-foreground); border: 1px solid var(--vscode-input-border, #444); border-radius: 6px; padding: 10px 14px; font-size: 14px; box-sizing: border-box;';
@@ -91,7 +91,7 @@ export class MarketplaceEditor extends EditorPane {
 			{
 				id: 'pkg.templates.fasteners',
 				name: 'ISO / ASME Fastener Catalog',
-				author: 'MechaStudio Official',
+				author: 'MAEngine Official',
 				desc: 'Parametric Hex Bolts (ISO 4014), Socket Head Caps (ISO 4762), Flange Nuts, and Flat Washers ready for automated contact pairing.',
 				ver: '1.2.0',
 				category: 'CAD Object Template',
@@ -118,7 +118,7 @@ export class MarketplaceEditor extends EditorPane {
 			{
 				id: 'pkg.templates.gears',
 				name: 'Spur & Helical Involute Gear Generator',
-				author: 'MechaStudio Official',
+				author: 'MAEngine Official',
 				desc: 'AGMA 2001-D04 rating compliant gear tooth profiles with root fillet radius, module, pressure angle, and face width parameters.',
 				ver: '1.1.0',
 				category: 'CAD Object Template',
@@ -186,3 +186,4 @@ export class MarketplaceEditor extends EditorPane {
 		this.scrollable.scanDomNode();
 	}
 }
+

@@ -66,16 +66,16 @@ export class StartEditor extends EditorPane {
 		titleRow.style.cssText = 'display: flex; align-items: center; gap: 16px; margin-bottom: 8px;';
 
 		const logo = append(titleRow, $('div.logo-icon'));
-		logo.style.cssText = 'width: 48px; height: 48px; border-radius: 8px; background: linear-gradient(135deg, #0984e3, #00cec9); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 24px;';
-		logo.textContent = 'M';
+		logo.style.cssText = 'width: 48px; height: 48px; border-radius: 8px; background: linear-gradient(135deg, #0984e3, #00cec9); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 20px; letter-spacing: -0.5px;';
+		logo.textContent = 'MAE';
 
 		const title = append(titleRow, $('h1'));
 		title.style.cssText = 'margin: 0; font-size: 32px; font-weight: 600; color: var(--vscode-foreground);';
-		title.textContent = 'MechaStudio';
+		title.textContent = 'MAEngine';
 
 		const subtitle = append(header, $('p'));
 		subtitle.style.cssText = 'margin: 0; font-size: 15px; color: var(--vscode-descriptionForeground, #888);';
-		subtitle.textContent = localize('start.subtitle', "Open-Source Mechanical Engineering IDE: 3D CAD Parametrics, Gmsh Meshing, CalculiX FEA & Post-Processing");
+		subtitle.textContent = localize('start.subtitle', "Mechanical Analysis Engine: 3D CAD Parametrics, Gmsh Meshing, CalculiX FEA & Post-Processing");
 
 		// Grid Layout for Actions
 		const grid = append(wrapper, $('.start-grid'));
@@ -188,7 +188,7 @@ export class StartEditor extends EditorPane {
 
 		const wfTitle = append(workflowSec, $('h3'));
 		wfTitle.style.cssText = 'margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: var(--vscode-foreground);';
-		wfTitle.textContent = localize('start.workflowParts', "MechaStudio Standard Engineering Workflow Parts");
+		wfTitle.textContent = localize('start.workflowParts', "MAEngine Mechanical Analysis Workflow");
 
 		const wfGrid = append(workflowSec, $('.wf-grid'));
 		wfGrid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;';
@@ -225,3 +225,4 @@ export class StartEditor extends EditorPane {
 		this.scrollable.scanDomNode();
 	}
 }
+
